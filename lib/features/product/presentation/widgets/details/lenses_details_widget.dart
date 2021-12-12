@@ -1,56 +1,24 @@
 import 'package:ajb1/core/bloc/application_bloc.dart';
-import 'package:ajb1/core/providers/cart_provider.dart';
-import 'package:ajb1/core/res/screen/horizontal_padding.dart';
-import 'package:ajb1/core/ui/dailog/add_to_cart_dialog.dart';
-import 'package:ajb1/core/ui/dailog/login_first_dialog.dart';
-import 'package:ajb1/core/ui/widget/title_with_view_all_widget.dart';
-import 'package:ajb1/features/product/domin/entities/cart_entity.dart';
 import 'package:ajb1/features/product/domin/entities/general_item_entity.dart';
 import 'package:ajb1/features/product/domin/entities/product_details_entity.dart';
-import 'package:ajb1/features/product/domin/repositories/product_repository.dart';
-import 'package:ajb1/features/product/domin/usecases/add_remove_favorite.dart';
-import 'package:ajb1/features/user_management/domain/repositories/user_repository.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart' as Get;
 import 'dart:ui';
 
-import 'package:ajb1/core/res/app_assets.dart';
-import 'package:ajb1/core/res/edge_margin.dart';
-import 'package:ajb1/core/res/screen/vertical_padding.dart';
-import 'package:ajb1/core/res/text_size.dart';
-import 'package:ajb1/core/res/utils.dart';
-import 'package:ajb1/core/ui/widget/image/image_caching.dart';
 import 'package:ajb1/features/product/domin/entities/product_entity.dart';
-import 'package:ajb1/features/product/presentation/args/product_details_args.dart';
-import 'package:ajb1/features/product/presentation/pages/lenses_details_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart' as Get;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ajb1/core/localization/translations.dart';
 import 'package:ajb1/core/res/global_color.dart';
 import 'package:ajb1/core/res/text_style.dart';
 import 'package:ajb1/core/res/width_height.dart';
-import 'package:ajb1/core/ui/button/arrow_back_button_widget.dart';
-import 'package:ajb1/core/ui/list/build_grid_product.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart' as Get;
-import 'package:provider/provider.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import '../../../../../main.dart';
-import '../item_product_home_widget.dart';
-import '../item_product_widget.dart';
-import '../lens_select_ipd_add_widget.dart';
-import '../lens_select_size_widget.dart';
 
 class LensesDetailsWidget extends StatefulWidget {
   final double width;
@@ -75,23 +43,9 @@ class _LensesDetailsWidgetState extends State<LensesDetailsWidget> {
       PageController(initialPage: 0, keepPage: true, viewportFraction: 1);
   var currentPageValue = 0;
 
-  // /// add parameters
-  // bool _addValidation = false;
-  // String _add = '';
-  // final TextEditingController addEditingController =
-  //     new TextEditingController();
-  //
-  // /// ipd parameters
-  // bool _ipdWidthValidation = false;
-  // String _ipd = '';
-  // final TextEditingController ipdEditingController =
-  //     new TextEditingController();
 
   GeneralItemEntity? _colorSelect;
-/*
-  LensesSelectedEnum _selectedForRightEye;
-  LensesSelectedEnum _selectedForLeftEye;
-  LensesIpdAddEnum _selectedForAddIPD;*/
+
 
   bool? isAuth;
 
@@ -111,1195 +65,393 @@ class _LensesDetailsWidgetState extends State<LensesDetailsWidget> {
         BlocProvider.of<ApplicationBloc>(context).state.isUserAuthenticated ||
             BlocProvider.of<ApplicationBloc>(context).state.isUserVerified;
     return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(20.r)),
+          color: Colors.grey[200]),
       child: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Container(
-          decoration: BoxDecoration(
-            color: globalColor.white,
-            // borderRadius: BorderRadius.all(Radius.circular(12.w))
-          ),
-          child: Column(
-            children: [
-              _buildTopWidget(
-                  context: context,
-                  width: width,
-                  height: height,
-                  discountPrice:
-                      widget.productDetails.discount_price.toDouble(),
-                  discountType: widget.productDetails.discount_type,
-                  product: widget.productDetails),
-              _buildTitleAndPriceWidget(
-                context: context,
-                width: width,
-                height: height,
-                price: widget.productDetails.price.toDouble(),
-                priceAfterDiscount:
-                    widget.productDetails.discount_price.toDouble(),
-                discountPrice: widget.productDetails.discount_price.toDouble(),
-                discountType: widget.productDetails.discount_type,
-                name: widget.productDetails.name,
-              ),
-              // _buildLensesColorWidget(
-              //     context: context,
-              //     width: width,
-              //     height: height,
-              //     listOfColor:
-              //         widget.productDetails.colorInfo ?? []),
-              // _buildLensesSizeForRightEyessWidget(
-              //     context: context,
-              //     width: width,
-              //     height: height,
-              //
-              //     title: Translations.of(context)
-              //         .translate('lens_size_for_right_eye')),
-              // _buildLensesSizeForLeftEyessWidget(
-              //     context: context,
-              //     width: width,
-              //     height: height,
-              //     title: Translations.of(context)
-              //         .translate('lens_size_for_left_eye')),
-              //
-              // // _buildLensesSizeForEyessWidget(
-              // //     context: context,
-              // //     width: width,
-              // //     height: height,
-              // //     title: 'test'
-              // // ),
-              // _buildEnterDimensionsOfLensesWidget(
-              //     context: context, width: width, height: height),
-              VerticalPadding(
-                percentage: 2.0,
-              ),
-              _buildGuaranteedRefundWidget(
-                  context: context, width: width, height: height),
-              _divider(),
-              _buildAddToCartAndFavoriteWidget(
-                  context: context,
-                  width: width,
-                  height: height,
-                  productEntity: widget.productDetails,
-                  isAuth: isAuth!),
-              _divider(),
-              _buildSimilarProducts(
-                  context: context, width: width, height: height),
+        child: Column(
+          children: [
+           _buildTopAds(context: context, height: 150.h),
+            Padding(
+              padding: EdgeInsets.only(top: 10.h, right: 20.w, left: 20.w),
+              child: Column(
+                //crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Text(
+                      '1/7',
+                      style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.grey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  _buildShareFavorite(),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                      child: Text(
+                      'Nike Air Max 2663',
+                      style: textStyle.middleTSBasic.copyWith(
+                          color: globalColor.grey,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 22.sp),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Container(
+                    height: 70.h,
+                    child: ListView.builder(
+                        itemCount: 5,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            width: 70.w,
+                            height: 70.h,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(20.r)),
+                                color: Colors.white),
+                            margin: EdgeInsets.only(left: 5.w, right: 5.w),
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl:
+                                  'https://image.freepik.com/free-photo/beef-burger-with-chopped-onions-tomatoes-inside-bread-bun-with-french-fries-stone-platter_114579-1865.jpg',
+                            ),
+                          );
+                        }),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      'Select Size',
+                      style: textStyle.middleTSBasic.copyWith(
+                          color: globalColor.grey,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18.sp),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                _buildSizesWidget(),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      'Description',
+                      style: textStyle.middleTSBasic.copyWith(
+                          color: globalColor.grey,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18.sp),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      'Description jhsdhd hdhghd duhhjdjd Description jhsdhd hdhghd duhhjdjd Description jhsdhd hdhghd duhhjdjd',
+                      style: textStyle.middleTSBasic.copyWith(
+                          color: globalColor.grey,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14.sp),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
 
-              VerticalPadding(
-                percentage: 2.5,
-              )
-            ],
-          ),
+                ],
+              ),
+            )]
         ),
       ),
     );
   }
 
-  _buildTopWidget(
-      {required BuildContext context,
-      required double width,
-      required double height,
-      required String discountType,
-      required double discountPrice,
-      required ProductDetailsEntity product}) {
+  _buildShareFavorite() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.share,
+              color: Colors.grey,
+            ),
+            SizedBox(
+              width: 20.w,
+            ),
+            Icon(
+              Icons.favorite,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+        Spacer(),
+        Text(
+          '100 \$',
+          style: textStyle.middleTSBasic.copyWith(
+              color: globalColor.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 20.sp),
+        ),
+      ],
+    );
+  }
+
+  _buildTopAds({required BuildContext context, required double height}) {
     return Container(
-      width: width,
-      height: 236.h,
-      padding: const EdgeInsets.fromLTRB(EdgeMargin.sub, EdgeMargin.verySub,
-          EdgeMargin.sub, EdgeMargin.verySub),
-      child: ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(12.w)),
+        height: 150.h,
+        width: MediaQuery.of(context).size.width,
         child: Stack(
           children: [
-            Stack(
-              children: [
-                Container(
-                  width: width,
-                  height: 236.h,
-                  child: ImageCacheWidget(
-                    imageUrl: product.image,
-                    imageWidth: width,
-                    imageHeight: 236.h,
-                    boxFit: BoxFit.fill,
-                  ),
-                ),
-                Positioned(
-                  left: 4.0,
-                  top: 4.0,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 5.0,
-                      ),
-                      product.is_new ?? false
-                          ? Container(
-                              decoration: BoxDecoration(
-                                color: globalColor.primaryColor,
-                                borderRadius: BorderRadius.circular(12.0.w),
-                              ),
-                              height: height * .035,
-                              constraints:
-                                  BoxConstraints(minWidth: width * .15),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: EdgeMargin.verySub,
-                                    right: EdgeMargin.verySub),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // SizedBox(
-                                    //   width: 2,
-                                    // ),
-                                    SvgPicture.asset(
-                                      AppAssets.newww,
-                                      width: 12,
-                                    ),
-                                    SizedBox(
-                                      width: 4,
-                                    ),
-                                    Text(
-                                      '${Translations.of(context).translate('new')}',
-                                      style: textStyle.smallTSBasic.copyWith(
-                                          color: globalColor.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : Container(
-                              child: Text(''),
-                            ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  bottom: 4.0,
-                  right: 4.0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: globalColor.white,
-                      borderRadius: BorderRadius.circular(12.0.w),
-                    ),
-                    height: height * .035,
-                    constraints: BoxConstraints(minWidth: width * .1),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4.0, right: 4.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 2,
-                          ),
-                          // SvgPicture.asset(
-                          //   AppAssets.user,
-                          //   width: 16,
-                          // ),
-                          // SizedBox(
-                          //   width: 4,
-                          // ),
-                          Text(
-                            '${product.quantity}',
-                            style: textStyle.minTSBasic.copyWith(
-                              color: globalColor.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 4.0,
-                  left: 4.0,
-                  child: discountType != null &&
-                          discountPrice != 0.0 &&
-                          discountPrice != 0
-                      ? Container(
-                          decoration: BoxDecoration(
-                              color: globalColor.white,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12.w)),
-                              border: Border.all(
-                                  color: globalColor.grey.withOpacity(0.3),
-                                  width: 0.5)),
-                          padding: const EdgeInsets.fromLTRB(
-                              EdgeMargin.subSubMin,
-                              EdgeMargin.verySub,
-                              EdgeMargin.subSubMin,
-                              EdgeMargin.verySub),
-                          child:
-                              /*discountType != null && discountPrice !=0
-                              ? */
-                              Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${discountPrice} ${Translations.of(context).translate('rail')}',
-                                style: textStyle.smallTSBasic.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: globalColor.primaryColor),
-                              ),
-                              Text(
-                                  ' ${Translations.of(context).translate('discount')}',
-                                  style: textStyle.minTSBasic
-                                      .copyWith(color: globalColor.black)),
-                            ],
-                          )
-                          /* Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '${discountPrice ?? '-'} %' ?? '',
-                                      style: textStyle.smallTSBasic.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: globalColor.primaryColor),
-                                    ),
-                                    Text(
-                                        ' ${Translations.of(context).translate('discount')}',
-                                        style: textStyle.minTSBasic.copyWith(
-                                            color: globalColor.black)),
-                                  ],
-                                ),*/
-                          )
-                      : Container(),
-                ),
-              ],
+            Positioned(
+              top: 0.h,
+              left: 0.w,
+              right: 0.w,
+              child: Container(
+                height: 200.h,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20.r)),
+                    color: Colors.indigo),
+              ),
             ),
-            /*    product.photoInfo != null && product.photoInfo.isNotEmpty
-                ? Positioned(
-                    bottom: 10,
-                    child: _buildPageIndicator2(
-                        width: width, list: product.photoInfo))
-                : Container()*/
+            Positioned(
+              top: 20.h,
+              left: 20.w,
+              right: 20.w,
+              child: Container(
+                height: 180.h,
+                width: MediaQuery.of(context).size.width,
+                child: ListView.builder(
+                    itemCount: 5,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20.r)),
+                            color: Colors.white),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              'https://image.freepik.com/free-photo/beef-burger-with-chopped-onions-tomatoes-inside-bread-bun-with-french-fries-stone-platter_114579-1865.jpg',
+                        ),
+                      );
+                    }),
+              ),
+            )
           ],
-        ),
-      ),
-    );
+        ));
   }
 
-  // _buildPageIndicator2({
-  //   required double width, }) {
-  //   return Container(
-  //     alignment: AlignmentDirectional.center,
-  //     width: width,
-  //     child: SmoothPageIndicator(
-  //         controller: controller, //// PageController
-  //         count: list.length,
-  //         effect: WormEffect(
-  //           spacing: 4.0,
-  //           radius: 10.0,
-  //           dotWidth: 10.0,
-  //           dotHeight: 10.0,
-  //           dotColor: Colors.white,
-  //           paintStyle: PaintingStyle.fill,
-  //           strokeWidth: 2,
-  //           activeDotColor: globalColor.primaryColor,
-  //         ), // your preferred effect
-  //         onDotClicked: (index) {}),
-  //   );
-  // }
-
-  _buildTitleAndPriceWidget({
-    required BuildContext context,
-    required double width,
-    required double height,
-    required double price,
-    required double priceAfterDiscount,
-    required double discountPrice,
-    required String discountType,
-    required String name,
-  }) {
-    return Container(
-      width: width,
-      padding:
-          const EdgeInsets.fromLTRB(EdgeMargin.min, 0.0, EdgeMargin.min, 0.0),
-      child: Column(
-        children: [
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Container(
-                  child: Text(
-                    '${name}',
-                    style: textStyle.middleTSBasic.copyWith(
-                      color: globalColor.black,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  alignment: AlignmentDirectional.centerStart,
-                ),
-                // Container(
-                //   child: Row(
-                //     crossAxisAlignment: CrossAxisAlignment.center,
-                //     children: [
-                //       Container(
-                //         width: 15.w,
-                //         height: 15.w,
-                //         child: SvgPicture.asset(
-                //           AppAssets.lenses_company_svg,
-                //           width: 15.w,
-                //         ),
-                //       ),
-                //       Container(
-                //           padding: const EdgeInsets.only(
-                //               left: EdgeMargin.sub, right: EdgeMargin.sub),
-                //           child: Text(
-                //             '${companyName ?? ''}',
-                //             style: textStyle.minTSBasic.copyWith(
-                //                 fontWeight: FontWeight.w500,
-                //                 color: globalColor.grey),
-                //           ))
-                //     ],
-                //   ),
-                // ),
-              ],
-            ),
-          ),
-          Container(
-              alignment: AlignmentDirectional.centerStart,
-              padding: const EdgeInsets.fromLTRB(EdgeMargin.verySub,
-                  EdgeMargin.sub, EdgeMargin.verySub, EdgeMargin.sub),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    // decoration: BoxDecoration(
-                    //     color: globalColor.white,
-                    //     borderRadius: BorderRadius.all(Radius.circular(12.w)),
-                    //     border: Border.all(
-                    //         color: globalColor.grey.withOpacity(0.3),
-                    //         width: 0.5)),
-                    padding: const EdgeInsets.fromLTRB(
-                        EdgeMargin.subSubMin,
-                        EdgeMargin.verySub,
-                        EdgeMargin.subSubMin,
-                        EdgeMargin.verySub),
-                    child: _buildPriceWidget(
-                        discountPrice: discountPrice,
-                        price: price,
-                        priceAfterDiscount: priceAfterDiscount),
-                  ),
-                ],
-              ))
-        ],
-      ),
-    );
-  }
-
-  _buildPriceWidget(
-      {required double price,
-      required double discountPrice,
-      required double priceAfterDiscount}) {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          discountPrice != null && discountPrice != 0.0
-              ? Container(
-                  child: FittedBox(
-                  child: RichText(
-                    text: TextSpan(
-                      text: '${price.toString() ?? ''}',
-                      style: textStyle.middleTSBasic.copyWith(
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.lineThrough,
-                          color: globalColor.grey),
-                      children: <TextSpan>[
-                        new TextSpan(
-                            text:
-                                ' ${Translations.of(context).translate('rail')}',
-                            style: textStyle.smallTSBasic
-                                .copyWith(color: globalColor.grey)),
-                      ],
-                    ),
-                  ),
-                ))
-              : Container(
-                  child: FittedBox(
-                  child: RichText(
-                    text: TextSpan(
-                      text: price.toString() ?? '',
-                      style: textStyle.middleTSBasic.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: globalColor.primaryColor),
-                      children: <TextSpan>[
-                        new TextSpan(
-                            text:
-                                ' ${Translations.of(context).translate('rail')}',
-                            style: textStyle.smallTSBasic
-                                .copyWith(color: globalColor.black)),
-                      ],
-                    ),
-                  ),
-                )),
-          HorizontalPadding(percentage: 2.5),
-          discountPrice != null && discountPrice != 0.0
-              ? Container(
-                  child: FittedBox(
-                  child: RichText(
-                    text: TextSpan(
-                      text: '${priceAfterDiscount}',
-                      style: textStyle.middleTSBasic.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: globalColor.primaryColor),
-                      children: <TextSpan>[
-                        new TextSpan(
-                            text:
-                                ' ${Translations.of(context).translate('rail')}',
-                            style: textStyle.smallTSBasic
-                                .copyWith(color: globalColor.black)),
-                      ],
-                    ),
-                  ),
-                ))
-              : Container(),
-        ],
-      ),
-    );
-  }
-
-/*  _buildLensesColorWidget(
-      {BuildContext context,
-      double width,
-      double height,
-      List<GeneralItemEntity> listOfColor}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        EdgeMargin.small,
-        EdgeMargin.min,
-        EdgeMargin.small,
-        EdgeMargin.min,
-      ),
-      child: Container(
-        width: width,
-        height: 46.h,
-        decoration: BoxDecoration(
-            color: globalColor.white,
-            borderRadius: BorderRadius.all(Radius.circular(12.w)),
-            border: Border.all(
-                color: globalColor.grey.withOpacity(0.3), width: 0.5)),
-        padding: const EdgeInsets.fromLTRB(
-            EdgeMargin.min, EdgeMargin.sub, EdgeMargin.min, EdgeMargin.sub),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+  _buildSizesWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
-              flex: 4,
+              flex: 1,
               child: Container(
-                child: Text(
-                  Translations.of(context).translate('the_color_of_the_lens'),
-                  style: textStyle.smallTSBasic.copyWith(
-                      fontWeight: FontWeight.w500, color: globalColor.black),
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1.w, color: Colors.black),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10.r)),
+                    color: Colors.white),
+                child: Center(
+                  child: Text(
+                    '4.0',
+                    style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp),
+                  ),
                 ),
               ),
             ),
+            SizedBox(width: 10.w,),
             Expanded(
-              flex: 2,
+              flex: 1,
               child: Container(
-                width: widget.width * .4,
-                height: 35.h,
-                child: Custom2Dropdown<GeneralItemEntity>(
-                  onChanged: (data) {
-                    _colorSelect = data;
-                    if (mounted) setState(() {});
-                  },
-                  value: _colorSelect,
-                  borderRadius: widget.width * .4,
-                  hint: '',
-                  dropdownMenuItemList: listOfColor.map((profession) {
-                    return DropdownMenuItem(
-                      child: Container(
-                        width: widget.width,
-                        decoration: BoxDecoration(
-                            color: profession == _colorSelect
-                                ? globalColor.primaryColor.withOpacity(0.3)
-                                : globalColor.white,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(12.w))),
-                        padding: EdgeInsets.all(EdgeMargin.small),
-                        child: ItemColorWidget(
-                          color: profession,
-                        ),
-                      ),
-                      value: profession ?? null,
-                    );
-                  }).toList(),
-                  selectedItemBuilder: (BuildContext context) {
-                    return listOfColor.map<Widget>((item) {
-                      return ItemColorWidget(
-                        color: item,
-                      );
-                    }).toList();
-                  },
-                  isEnabled: true,
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1.w, color: Colors.black),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10.r)),
+                    color: Colors.white),
+                child: Center(
+                  child: Text(
+                    '4.0',
+                    style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 10.w,),
+            Expanded(
+              flex: 1,
+              child: Container(
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1.w, color: Colors.black),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10.r)),
+                    color: Colors.white),
+                child: Center(
+                  child: Text(
+                    '4.0',
+                    style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 10.w,),
+            Expanded(
+              flex: 1,
+              child: Container(
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1.w, color: Colors.black),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10.r)),
+                    color: Colors.white),
+                child: Center(
+                  child: Text(
+                    '4.0',
+                    style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp),
+                  ),
                 ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }*/
-  //
-  // _buildLensesSizeForEyesWidget(
-  //     {BuildContext context, double width, double height, String title}) {
-  //   return Padding(
-  //     padding: const EdgeInsets.fromLTRB(
-  //       EdgeMargin.small,
-  //       EdgeMargin.min,
-  //       EdgeMargin.small,
-  //       EdgeMargin.min,
-  //     ),
-  //     child: Container(
-  //       width: width,
-  //       padding:
-  //           const EdgeInsets.fromLTRB(0.0, EdgeMargin.sub, 0.0, EdgeMargin.sub),
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Container(
-  //             child: Text(
-  //               title ?? '',
-  //               style: textStyle.middleTSBasic.copyWith(
-  //                 color: globalColor.black,
-  //                 fontWeight: FontWeight.w600,
-  //               ),
-  //               overflow: TextOverflow.ellipsis,
-  //               maxLines: 1,
-  //             ),
-  //           ),
-  //           VerticalPadding(
-  //             percentage: 1.0,
-  //           ),
-  //           Row(
-  //             crossAxisAlignment: CrossAxisAlignment.center,
-  //             children: [
-  //               Expanded(
-  //                 child: Container(
-  //                   decoration: BoxDecoration(
-  //                       color: globalColor.white,
-  //                       borderRadius: BorderRadius.circular(12.0.w),
-  //                       border: Border.all(
-  //                           color: globalColor.grey.withOpacity(0.3),
-  //                           width: 0.5)),
-  //                   alignment: AlignmentDirectional.center,
-  //                   height: 40.h,
-  //                   child: Text(
-  //                     'AXIS',
-  //                     style: textStyle.middleTSBasic.copyWith(
-  //                         fontWeight: FontWeight.w500, color: globalColor.grey),
-  //                   ),
-  //                 ),
-  //               ),
-  //               HorizontalPadding(
-  //                 percentage: 1.0,
-  //               ),
-  //               Expanded(
-  //                 child: Container(
-  //                   decoration: BoxDecoration(
-  //                       color: globalColor.white,
-  //                       borderRadius: BorderRadius.circular(12.0.w),
-  //                       border: Border.all(
-  //                           color: globalColor.grey.withOpacity(0.3),
-  //                           width: 0.5)),
-  //                   alignment: AlignmentDirectional.center,
-  //                   height: 40.h,
-  //                   child: Text(
-  //                     'CYI',
-  //                     style: textStyle.middleTSBasic.copyWith(
-  //                         fontWeight: FontWeight.w500, color: globalColor.grey),
-  //                   ),
-  //                 ),
-  //               ),
-  //               HorizontalPadding(
-  //                 percentage: 1.0,
-  //               ),
-  //               Expanded(
-  //                 child: Container(
-  //                   decoration: BoxDecoration(
-  //                       color: globalColor.white,
-  //                       borderRadius: BorderRadius.circular(12.0.w),
-  //                       border: Border.all(
-  //                           color: globalColor.grey.withOpacity(0.3),
-  //                           width: 0.5)),
-  //                   alignment: AlignmentDirectional.center,
-  //                   height: 40.h,
-  //                   child: Text(
-  //                     'CPH',
-  //                     style: textStyle.middleTSBasic.copyWith(
-  //                         fontWeight: FontWeight.w500, color: globalColor.grey),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-  //
-  // _buildLensesSizeForRightEyessWidget(
-  //     {BuildContext context, double width, double height, String title}) {
-  //   return Padding(
-  //     padding: const EdgeInsets.fromLTRB(
-  //       EdgeMargin.small,
-  //       EdgeMargin.min,
-  //       EdgeMargin.small,
-  //       EdgeMargin.min,
-  //     ),
-  //     child: Container(
-  //       width: width,
-  //       padding:
-  //           const EdgeInsets.fromLTRB(0.0, EdgeMargin.sub, 0.0, EdgeMargin.sub),
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Container(
-  //             child: Text(
-  //               title ?? '',
-  //               style: textStyle.middleTSBasic.copyWith(
-  //                 color: globalColor.black,
-  //                 fontWeight: FontWeight.w600,
-  //               ),
-  //               overflow: TextOverflow.ellipsis,
-  //               maxLines: 1,
-  //             ),
-  //           ),
-  //           VerticalPadding(
-  //             percentage: 1.0,
-  //           ),
-  //           LensSelectSizeWidget(
-  //             onSelected: (lensesSelected) {
-  //               _selectedForRightEye = lensesSelected;
-  //               if (mounted) {
-  //                 setState(() {});
-  //               }
-  //               print('lensesSelected is $lensesSelected');
-  //             },
-  //             width: width,
-  //           )
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-  //
-  // _buildLensesSizeForLeftEyessWidget({
-  //   BuildContext context,
-  //   double width,
-  //   double height,
-  //   String title,
-  // }) {
-  //   return Padding(
-  //     padding: const EdgeInsets.fromLTRB(
-  //       EdgeMargin.small,
-  //       EdgeMargin.min,
-  //       EdgeMargin.small,
-  //       EdgeMargin.min,
-  //     ),
-  //     child: Container(
-  //       width: width,
-  //       padding:
-  //           const EdgeInsets.fromLTRB(0.0, EdgeMargin.sub, 0.0, EdgeMargin.sub),
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Container(
-  //             child: Text(
-  //               title ?? '',
-  //               style: textStyle.middleTSBasic.copyWith(
-  //                 color: globalColor.black,
-  //                 fontWeight: FontWeight.w600,
-  //               ),
-  //               overflow: TextOverflow.ellipsis,
-  //               maxLines: 1,
-  //             ),
-  //           ),
-  //           VerticalPadding(
-  //             percentage: 1.0,
-  //           ),
-  //           LensSelectSizeWidget(
-  //             onSelected: (lensesSelected) {
-  //               _selectedForLeftEye = lensesSelected;
-  //               if (mounted) {
-  //                 setState(() {});
-  //               }
-  //               print('lensesSelected is $lensesSelected');
-  //             },
-  //             width: width,
-  //           )
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-  //
-  // _buildEnterDimensionsOfLensesWidget(
-  //     {BuildContext context, double width, double height}) {
-  //   return Container(
-  //     width: width,
-  //     padding:
-  //         const EdgeInsets.fromLTRB(0.0, EdgeMargin.sub, 0.0, EdgeMargin.sub),
-  //     child: Column(
-  //       mainAxisAlignment: MainAxisAlignment.start,
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Container(
-  //           padding: const EdgeInsets.fromLTRB(
-  //               EdgeMargin.min, 0.0, EdgeMargin.min, 0.0),
-  //           child: Row(
-  //             crossAxisAlignment: CrossAxisAlignment.center,
-  //             children: [
-  //               Expanded(
-  //                 flex: 1,
-  //                 child: Container(
-  //                   child: Text(
-  //                     Translations.of(context).translate('enter_the_sizes') ??
-  //                         '',
-  //                     style: textStyle.middleTSBasic.copyWith(
-  //                       color: globalColor.black,
-  //                       fontWeight: FontWeight.w600,
-  //                     ),
-  //                     overflow: TextOverflow.ellipsis,
-  //                     maxLines: 1,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //
-  //         Container(
-  //           padding: const EdgeInsets.fromLTRB(
-  //               EdgeMargin.min, 0.0, EdgeMargin.min, 0.0),
-  //           child: LensSelectIpdAddWidget(
-  //             onSelected: (lensesSelected) {
-  //               _selectedForAddIPD = lensesSelected;
-  //               if (mounted) {
-  //                 setState(() {});
-  //               }
-  //               print('lensesSelected is $lensesSelected');
-  //             },
-  //             width: width,
-  //           ),
-  //         ),
-  //         // Container(
-  //         //   child: Row(
-  //         //     children: [
-  //         //       Expanded(
-  //         //           flex: 1,
-  //         //           child: Padding(
-  //         //             padding: const EdgeInsets.all(EdgeMargin.subSubMin),
-  //         //             child: Container(
-  //         //               child: BorderFormField(
-  //         //                 controller: addEditingController,
-  //         //                 validator: (value) {
-  //         //                   return BaseValidator.validateValue(
-  //         //                     context,
-  //         //                     value,
-  //         //                     [],
-  //         //                     _addValidation,
-  //         //                   );
-  //         //                 },
-  //         //                 hintText: 'ADD',
-  //         //                 hintStyle: textStyle.smallTSBasic.copyWith(
-  //         //                     color: globalColor.grey,
-  //         //                     fontWeight: FontWeight.bold),
-  //         //                 style: textStyle.smallTSBasic.copyWith(
-  //         //                     color: globalColor.black,
-  //         //                     fontWeight: FontWeight.bold),
-  //         //                 filled: false,
-  //         //                 keyboardType: TextInputType.number,
-  //         //                 borderRadius: 12.w,
-  //         //                 onChanged: (value) {
-  //         //                   setState(() {
-  //         //                     _addValidation = true;
-  //         //                     _add = value;
-  //         //                   });
-  //         //                 },
-  //         //                 textAlign: TextAlign.center,
-  //         //                 borderColor: globalColor.grey.withOpacity(0.3),
-  //         //                 textInputAction: TextInputAction.next,
-  //         //                 onFieldSubmitted: (_) {
-  //         //                   FocusScope.of(context).nextFocus();
-  //         //                 },
-  //         //               ),
-  //         //             ),
-  //         //           )),
-  //         //       HorizontalPadding(
-  //         //         percentage: 0.5,
-  //         //       ),
-  //         //       Expanded(
-  //         //         flex: 1,
-  //         //         child: Padding(
-  //         //           padding: const EdgeInsets.all(EdgeMargin.subSubMin),
-  //         //           child: Container(
-  //         //             child: BorderFormField(
-  //         //               controller: ipdEditingController,
-  //         //               validator: (value) {
-  //         //                 return BaseValidator.validateValue(
-  //         //                   context,
-  //         //                   value,
-  //         //                   [],
-  //         //                   _ipdWidthValidation,
-  //         //                 );
-  //         //               },
-  //         //               hintText: 'IPD',
-  //         //               hintStyle: textStyle.smallTSBasic.copyWith(
-  //         //                   color: globalColor.grey,
-  //         //                   fontWeight: FontWeight.bold),
-  //         //               style: textStyle.smallTSBasic.copyWith(
-  //         //                   color: globalColor.black,
-  //         //                   fontWeight: FontWeight.bold),
-  //         //               filled: false,
-  //         //               keyboardType: TextInputType.number,
-  //         //               borderRadius: 12.w,
-  //         //               onChanged: (value) {
-  //         //                 setState(() {
-  //         //                   _ipdWidthValidation = true;
-  //         //                   _ipd = value;
-  //         //                 });
-  //         //               },
-  //         //               textAlign: TextAlign.center,
-  //         //               borderColor: globalColor.grey.withOpacity(0.3),
-  //         //               textInputAction: TextInputAction.next,
-  //         //               onFieldSubmitted: (_) {
-  //         //                 FocusScope.of(context).nextFocus();
-  //         //               },
-  //         //             ),
-  //         //           ),
-  //         //         ),
-  //         //       ),
-  //         //     ],
-  //         //   ),
-  //         // )
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  _buildGuaranteedRefundWidget(
-      {required BuildContext context,
-      required double width,
-      required double height}) {
-    return Container(
-      padding:
-          const EdgeInsets.fromLTRB(EdgeMargin.min, 0.0, EdgeMargin.min, 0.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 15.w,
-            height: 15.w,
-            decoration: BoxDecoration(
-                color: globalColor.goldColor,
-                shape: BoxShape.circle,
-                border:
-                    Border.all(width: 1.0, color: globalColor.primaryColor)),
-            child: Icon(
-              Icons.check,
-              color: globalColor.black,
-              size: 10.w,
-            ),
-          ),
-          Container(
-              padding: const EdgeInsets.only(
-                  left: EdgeMargin.sub, right: EdgeMargin.sub),
-              child: Text(
-                Translations.of(context)
-                    .translate('guarantee_refund_shipping_after_purchase'),
-                style: textStyle.minTSBasic.copyWith(
-                    fontWeight: FontWeight.w500, color: globalColor.black),
-              ))
-        ],
-      ),
-    );
-  }
-
-  _buildAddToCartAndFavoriteWidget(
-      {required BuildContext context,
-      required double width,
-      required double height,
-      required ProductDetailsEntity productEntity,
-      required bool isAuth}) {
-    return Container(
-      padding:
-          const EdgeInsets.fromLTRB(EdgeMargin.min, 0.0, EdgeMargin.min, 0.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 3,
-            child: InkWell(
-              onTap: () async {
-                final result =
-                    await AddOrRemoveFavorite(locator<ProductRepository>())(
-                  AddOrRemoveFavoriteParams(
-                      cancelToken: widget.cancelToken,
-                      productId: widget.product.id!),
-                );
-                if (result.hasDataOnly) {
-                  if (mounted)
-                    setState(() {
-                      // isRemoveFromFavorite = true;
-                      //
-                      // BlocProvider.of<ApplicationBloc>(context)
-                      //     .state
-                      //     .setRefreshFavoritePath(true);
-                      widget.productDetails.isFavorite =
-                          !widget.productDetails.isFavorite;
-                      // widget.path.setIsFav(!widget.path.isFav);
-                    });
-                } else if (result.hasErrorOnly || result.hasDataAndError)
-                  Fluttertoast.showToast(
-                      msg: Translations.of(context)
-                          .translate('something_went_wrong_try_again'));
-              },
+        SizedBox(height: 15.h,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 1,
               child: Container(
+                width: 40.w,
+                height: 40.h,
                 decoration: BoxDecoration(
-                    color: globalColor.white,
-                    borderRadius: BorderRadius.circular(16.0.w),
-                    border: Border.all(
-                        width: 0.5, color: globalColor.grey.withOpacity(0.3))),
-                height: 35.w,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SvgPicture.asset(
-                      widget.productDetails.isFavorite
-                          ? AppAssets.love_fill
-                          : AppAssets.love,
-                      //color: globalColor.black,
-                      width: 20.w,
-                    ),
-                    Text(
-                      Translations.of(context).translate('favorite'),
-                      style: textStyle.smallTSBasic.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: globalColor.primaryColor),
-                    ),
-                  ],
+                    border: Border.all(width: 1.w, color: Colors.black),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10.r)),
+                    color: Colors.white),
+                child: Center(
+                  child: Text(
+                    '4.0',
+                    style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp),
+                  ),
                 ),
               ),
             ),
-          ),
-          HorizontalPadding(
-            percentage: 2.0,
-          ),
-          Consumer<CartProvider>(
-            builder: (context, quizProvider, child) {
-              return Expanded(
-                flex: 3,
-                child: InkWell(
-                  onTap: () async {
-                    if (await UserRepository.hasToken && isAuth) {
-                      // if(_checkStatus()) {
-                      //
-                      // }
-                      // else{
-                      //   appConfig.showToast(
-                      //       msg: Translations.of(context).translate('please_choose_lens_sizes'),
-                      //       backgroundColor: globalColor.primaryColor,
-                      //       textColor: globalColor.white
-                      //   );
-                      // }
-                      quizProvider.addItemToCart(CartEntity(
-                          id: productEntity.id,
-                          productEntity: productEntity,
-                          //isGlasses: false,
-                          // SizeModeId: null,
-                          //  colorId: _colorSelect?.id,
-                          //  lensSize: _selectedForAddIPD,
-                          //   sizeForLeftEye: _selectedForLeftEye,
-                          //   sizeForRightEye: _selectedForRightEye,
-                          count: 1));
-                      print('${quizProvider.getItems()!.length}');
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AddToCartDialog(),
-                      );
-                    } else {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => LoginFirstDialog(),
-                      );
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: globalColor.white,
-                        borderRadius: BorderRadius.circular(16.0.w),
-                        border: Border.all(
-                            width: 0.5,
-                            color: globalColor.grey.withOpacity(0.3))),
-                    height: 35.w,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SvgPicture.asset(
-                          AppAssets.cart_nav_bar,
-                          color: globalColor.black,
-                          width: 20.w,
-                        ),
-                        Text(
-                          Translations.of(context).translate('add_to_cart'),
-                          style: textStyle.smallTSBasic.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: globalColor.primaryColor),
-                        ),
-                      ],
-                    ),
+            SizedBox(width: 10.w,),
+            Expanded(
+              flex: 1,
+              child: Container(
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1.w, color: Colors.black),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10.r)),
+                    color: Colors.white),
+                child: Center(
+                  child: Text(
+                    '4.0',
+                    style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp),
                   ),
                 ),
-              );
-            },
-          ),
-          // Expanded(
-          //   flex: 3,
-          //   child: Container(
-          //     decoration: BoxDecoration(
-          //         color: globalColor.white,
-          //         borderRadius: BorderRadius.circular(16.0.w),
-          //         border: Border.all(
-          //             width: 0.5, color: globalColor.grey.withOpacity(0.3))),
-          //     height: 35.w,
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //       children: [
-          //         SvgPicture.asset(
-          //           AppAssets.cart_nav_bar,
-          //           color: globalColor.black,
-          //           width: 20.w,
-          //         ),
-          //         Text(
-          //           Translations.of(context).translate('add_to_cart'),
-          //           style: textStyle.smallTSBasic.copyWith(
-          //               fontWeight: FontWeight.w500,
-          //               color: globalColor.primaryColor),
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-        ],
-      ),
-    );
-  }
-
-/*  _checkStatus() {
-    // print('_add ${_add}');
-    // print('_ipd ${_ipd}');
-    print('_selectedForLeftEye ${_selectedForLeftEye.toString()}');
-    print('_selectedForAddIPD ${_selectedForAddIPD.toString()}');
-    print('_selectedForRightEye ${_selectedForRightEye.toString()}');
-    return _selectedForAddIPD != null &&
-        _selectedForLeftEye != null &&
-        _selectedForRightEye != null;
-  }*/
-
-  _buildSimilarProducts(
-      {required BuildContext context,
-      required double width,
-      required double height}) {
-    return Container(
-      child: widget.productDetails.product_as_same != null &&
-              widget.productDetails.product_as_same.isNotEmpty
-          ? Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: EdgeMargin.small, right: EdgeMargin.small),
-                  child: TitleWithViewAllWidget(
-                    width: width,
-                    title:
-                        Translations.of(context).translate('similar_products'),
-                    onClickView: () {},
-                    strViewAll: Translations.of(context).translate('view_all'),
+              ),
+            ),
+            SizedBox(width: 10.w,),
+            Expanded(
+              flex: 1,
+              child: Container(
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1.w, color: Colors.black),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10.r)),
+                    color: Colors.white),
+                child: Center(
+                  child: Text(
+                    '4.0',
+                    style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp),
                   ),
                 ),
-                Container(
-                    child: GridView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: widget.productDetails.product_as_same.length,
-                        shrinkWrap: true,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 1,
-                          mainAxisSpacing: 1,
-                          childAspectRatio:
-                              globalSize.setWidthPercentage(47, context) /
-                                  globalSize.setWidthPercentage(60, context),
-                        ),
-                        itemBuilder: (BuildContext context, int index) {
-                          return ItemProductHomeWidget(
-                            height: globalSize.setWidthPercentage(60, context),
-                            width: globalSize.setWidthPercentage(47, context),
-                            product:
-                                widget.productDetails.product_as_same[index],
-                            fromHome: true,
-                          );
-                        }))
-              ],
-            )
-          : Container(),
-    );
-  }
-
-  // _buildSimilarProducts({BuildContext context, double width, double height}) {
-  //   return Container(
-  //     child: Column(
-  //       children: [
-  //         Padding(
-  //           padding: const EdgeInsets.only(
-  //               left: EdgeMargin.small, right: EdgeMargin.small),
-  //           child: TitleWithViewAllWidget(
-  //             width: width,
-  //             title: Translations.of(context).translate('similar_products'),
-  //             onClickView: () {},
-  //             strViewAll: Translations.of(context).translate('view_all'),
-  //           ),
-  //         ),
-  //         // Container(
-  //         //   child: GridView.builder(
-  //         //       physics: NeverScrollableScrollPhysics(),
-  //         //       padding: const EdgeInsets.only(
-  //         //           left: EdgeMargin.small, right: EdgeMargin.small),
-  //         //       itemCount: listOfProduct.length,
-  //         //       shrinkWrap: true,
-  //         //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-  //         //         crossAxisCount: 2,
-  //         //         crossAxisSpacing: 4,
-  //         //         mainAxisSpacing: 4,
-  //         //         childAspectRatio: globalSize.setWidthPercentage(40, context) /
-  //         //             globalSize.setWidthPercentage(55, context),
-  //         //       ),
-  //         //       itemBuilder: (context, index) {
-  //         //         return ItemProductHomeWidget(
-  //         //           product: listOfProduct[index],
-  //         //           height: globalSize.setWidthPercentage(55, context),
-  //         //           width: globalSize.setWidthPercentage(40, context),
-  //         //         );
-  //         //       }),
-  //         // )
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  _divider() {
-    return Divider(
-      color: globalColor.grey.withOpacity(0.3),
-      height: 20.h,
+              ),
+            ),
+            SizedBox(width: 10.w,),
+            Expanded(
+              flex: 1,
+              child: Container(
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1.w, color: Colors.black),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10.r)),
+                    color: Colors.white),
+                child: Center(
+                  child: Text(
+                    '4.0',
+                    style: textStyle.middleTSBasic.copyWith(
+                        color: globalColor.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   delay() async {
-    await Future.delayed(Duration(seconds: 1), () {
+    await Future.delayed(Duration(seconds: 3), () {
       Get.Get.offAndToNamed(MainRootPage.routeName);
     });
   }
@@ -117,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen>
                 Container(
                   height: height,
                   width: width,
-                  color: Colors.red,
+                  color: Colors.white,
                   child: Image.asset(
                     AppAssets.splash_logo,
                     alignment: Alignment.center,

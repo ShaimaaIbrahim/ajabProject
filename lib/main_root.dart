@@ -507,7 +507,9 @@ class _MainRootPageState extends State<MainRootPage>
           Expanded(
             flex: 1,
             child: _buildColumnItme(
-                'edit_profile_drawer', AppAssets.profile_nav_bar, context),
+                'edit_profile_drawer', AppAssets.profile_nav_bar, context, function: (){
+              Get.Get.toNamed(ProfilePage.routeName);
+            }),
           ),
           HorizontalPadding(
             percentage: 20.w,
@@ -515,14 +517,21 @@ class _MainRootPageState extends State<MainRootPage>
           Expanded(
             flex: 1,
             child: _buildColumnItme(
-                'application_language', AppAssets.worldLang, context),
+                'application_language', AppAssets.worldLang, context, function: (){
+            showDialog(
+                context: context,
+                builder: (_) => LanguageDialog(),
+              );
+            }),
           ),
           HorizontalPadding(
             percentage: 20.w,
           ),
           Expanded(
             flex: 1,
-            child: _buildColumnItme('offers_drawer', AppAssets.sales, context),
+            child: _buildColumnItme('offers_drawer', AppAssets.sales, context, function: (){
+              Get.Get.toNamed(OffersPage.routeName);
+            }),
           )
         ],
       ),
@@ -535,7 +544,9 @@ class _MainRootPageState extends State<MainRootPage>
         children: [
           Expanded(
             flex: 1,
-            child: _buildColumnItme('favorite_drawer', AppAssets.love, context),
+            child: _buildColumnItme('favorite_drawer', AppAssets.love, context, function: (){
+              Get.Get.toNamed(FavoritePage.routeName);
+            }),
           ),
           HorizontalPadding(
             percentage: 20.w,
@@ -543,7 +554,9 @@ class _MainRootPageState extends State<MainRootPage>
           Expanded(
             flex: 1,
             child:
-                _buildColumnItme('use_policy', AppAssets.use_policy, context),
+                _buildColumnItme('use_policy', AppAssets.use_policy, context, function: (){
+                  Get.Get.toNamed(UsePolicyPage.routeName);
+                }),
           ),
           HorizontalPadding(
             percentage: 20.w,
@@ -551,7 +564,17 @@ class _MainRootPageState extends State<MainRootPage>
           Expanded(
             flex: 1,
             child: _buildColumnItme(
-                'notifications1', AppAssets.notification, context),
+                'notifications1', AppAssets.notification, context, function:() async{
+                  if (await UserRepository.hasToken && isAuth!) {
+                    Get.Get.toNamed(NotificationPage.routeName);
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => LoginFirstDialog(),
+                    );
+                  }
+            }),
+
           )
         ],
       ),
@@ -676,7 +699,7 @@ class _MainRootPageState extends State<MainRootPage>
       // ),
       //
       Container(
-        height: 50.h,
+        height: 100.h,
       ),
 
       Row(
@@ -895,7 +918,7 @@ class _MainRootPageState extends State<MainRootPage>
       [ispng = false, onTap]) {
     bool isSelected = (page.index == tabController!.index);
 
-    final iconColor = isSelected ? globalColor.primaryColor : globalColor.black;
+    final iconColor = isSelected ? Colors.amber : globalColor.black;
     return Container(
       child: Padding(
         padding: EdgeInsets.only(top: ScreensHelper.fromHeight(0.5)),
@@ -974,29 +997,33 @@ class _MainRootPageState extends State<MainRootPage>
   }
 }
 
-_buildColumnItme(title, icon, context) {
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Container(
-          width: 70.w,
-          height: 70.h,
-          decoration:
-              BoxDecoration(color: Colors.yellow, shape: BoxShape.circle),
-          child: Center(
-            child: SvgPicture.asset(
-              icon,
-              width: 20.w,
-              height: 20.h,
-              color: Colors.black,
-            ),
-          )),
-      SizedBox(height: 5.h),
-      Text(
-        Translations.of(context).translate(title),
-        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
-      )
-    ],
+_buildColumnItme(title, icon, context,{function}) {
+  return InkWell(
+    onTap: function,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+            width: 70.w,
+            height: 70.h,
+            decoration:
+                BoxDecoration(color: Colors.yellow, shape: BoxShape.circle),
+            child: Center(
+              child: SvgPicture.asset(
+                icon,
+                width: 30.w,
+                height: 30.h,
+                color: Colors.black,
+              ),
+            )),
+        SizedBox(height: 5.h),
+        Text(
+          Translations.of(context).translate(title),
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+        )
+      ],
+    ),
   );
 }
 

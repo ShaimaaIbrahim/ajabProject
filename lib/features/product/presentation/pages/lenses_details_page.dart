@@ -1,5 +1,6 @@
 import 'package:ajb1/core/localization/translations.dart';
 import 'package:ajb1/core/res/app_assets.dart';
+import 'package:ajb1/core/res/edge_margin.dart';
 import 'package:ajb1/core/res/global_color.dart';
 import 'package:ajb1/core/res/screen/horizontal_padding.dart';
 import 'package:ajb1/core/res/text_style.dart';
@@ -100,6 +101,7 @@ class _LensesDetailsPageState extends State<LensesDetailsPage> {
   }*/
 
   final args = Get.Get.arguments as ProductDetailsArguments;
+
   @override
   void initState() {
     super.initState();
@@ -146,48 +148,81 @@ class _LensesDetailsPageState extends State<LensesDetailsPage> {
         backgroundColor: globalColor.scaffoldBackGroundGreyColor,
         appBar: appBar,
         key: _globalKey,
-        body: Container(
-            height: height,
-            // padding: const EdgeInsets.fromLTRB(EdgeMargin.subMin,
-            //     EdgeMargin.sub, EdgeMargin.subMin, EdgeMargin.sub),
-            child: RefreshIndicator(
-              onRefresh: () async {
-                setState(() {
-                  _globalKey = GlobalKey();
-                });
-                return null;
-              },
-              child: NetworkWidget<ProductDetailsEntity>(
-                connectionErrorWidgetBuilder: (_, __) {
-                  return ConnectionErrorWidget(callback: reBuildPage);
-                },
-                unknownErrorWidgetBuilder: (_, __) {
-                  return UnexpectedErrorWidget(callback: reBuildPage);
-                },
-                builder: (context, data) {
-                  return LensesDetailsWidget(
-                    width: width,
-                    height: height,
-                    product: args.product,
-                    productDetails: data,
-                    cancelToken: _cancelToken,
-                  );
-                },
-                loadingWidgetBuilder: (context) {
-                  return LensesDetailsShimmer(
-                    width: width,
-                    height: height,
-                    product: args.product,
-                  );
-                },
-                fetcher: () {
-                  return GetProductDetails(locator<ProductRepository>())(
-                    GetProductDetailsParams(
-                        id: args.product.id!, cancelToken: _cancelToken),
-                  );
-                },
+        body: Stack(
+          children: [
+            Container(
+                height: height,
+                padding: const EdgeInsets.fromLTRB(EdgeMargin.subMin,
+                    EdgeMargin.sub, EdgeMargin.subMin, EdgeMargin.sub),
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      _globalKey = GlobalKey();
+                    });
+                    return null;
+                  },
+                  child: NetworkWidget<ProductDetailsEntity>(
+                    connectionErrorWidgetBuilder: (_, __) {
+                      return ConnectionErrorWidget(callback: reBuildPage);
+                    },
+                    unknownErrorWidgetBuilder: (_, __) {
+                      return UnexpectedErrorWidget(callback: reBuildPage);
+                    },
+                    builder: (context, data) {
+                      return LensesDetailsWidget(
+                        width: width,
+                        height: height,
+                        product: args.product,
+                        productDetails: data,
+                        cancelToken: _cancelToken,
+                      );
+                    },
+                    loadingWidgetBuilder: (context) {
+                      return LensesDetailsShimmer(
+                        width: width,
+                        height: height,
+                        product: args.product,
+                      );
+                    },
+                    fetcher: () {
+                      return GetProductDetails(locator<ProductRepository>())(
+                        GetProductDetailsParams(
+                            id: args.product.id!, cancelToken: _cancelToken),
+                      );
+                    },
+                  ),
+                )),
+            Positioned(
+              bottom: 0.h,
+              left: 0.w,
+              right: 0.w,
+              child:   Container(
+                color: Colors.white,
+                height: 70.h,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    RaisedButton(
+                      onPressed: () {},
+                      child: Text('Buy Now'),
+                      color: Colors.amber,
+                      textColor: Colors.black,
+                    ),
+                    SizedBox(
+                      width: 20.w,
+                    ),
+                    RaisedButton(
+                      onPressed: () {},
+                      color: Colors.white,
+                      textColor: Colors.black,
+                      child: Text('Add to cart'),
+                    )
+                  ],
+                ),
               ),
-            )));
+            ),
+          ],
+        ));
   }
 
   void reBuildPage() {

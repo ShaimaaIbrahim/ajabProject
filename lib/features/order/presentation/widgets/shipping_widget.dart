@@ -63,7 +63,7 @@ class _ShippedWidgetState extends State<ShippedWidget> {
 
   _buildStepsWidget() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
